@@ -1,0 +1,28 @@
+name: 1570 Technical Alert
+
+on:
+  schedule:
+    # 平日（月〜金）日本時間 11:35 に自動実行（UTC 02:35）
+    - cron: '35 2 * * 1-5'
+  # GitHub画面からいつでも手動実行できるボタンを有効化
+  workflow_dispatch:
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python環境のセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 株価分析とDiscord通知を実行
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          python main.py
+          
