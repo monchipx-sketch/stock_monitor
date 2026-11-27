@@ -1,28 +1,35 @@
-name: 1570 Technical Alert
+name: Stock Technical Alert & Result
 
 on:
   schedule:
-    # 平日（月〜金）日本時間 11:35 に自動実行（UTC 02:35）
-    - cron: '35 2 * * 1-5'
-  # GitHub画面からいつでも手動実行できるボタンを有効化
-  workflow_dispatch:
+    # 協定世界時(UTC) 02:31 ＝ 日本時間(JST) 平日11:31（昼休み速報）
+    - cron: '31 2 * * 1-5'
+    # 協定世界時(UTC) 06:45 ＝ 日本時間(JST) 平日15:45（後場結果シミュレーション）
+    - cron: '45 6 * * 1-5'
+  workflow_dispatch: # 手動実行用ボタン
 
 jobs:
   alert:
     runs-on: ubuntu-latest
 
     steps:
-      - name: リポジトリをチェックアウト
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Python環境のセットアップ
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: 株価分析とDiscord通知を実行
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas requests pytz
+
+      - name: Run script
         env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           python main.py
+
           
